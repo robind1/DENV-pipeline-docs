@@ -1,6 +1,6 @@
-.. KP Mutation Pipeline documentation master file
+.. DENV Mutation Pipeline documentation master file
 
-Platform agnostic KP resistance pipeline
+Platform-agnostic DENV analysis pipeline
 ==================================
 
 .. toctree::
@@ -14,12 +14,5 @@ Platform agnostic KP resistance pipeline
    components
    outputs
    FHIR
+   phylogenetic
    version
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
