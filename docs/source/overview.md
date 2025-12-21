@@ -1,17 +1,17 @@
 # Overview
-
-This Pipeline is a Nextflow-based workflow designed for Klebsiella pneumoniae genomic analysis. It processes raw sequencing data (Illumina or Nanopore) to identify antimicrobial resistance (AMR) genes (CARD database), determine capsule types, perform MLST typing, assess virulence factors, and generate FHIR-compliant clinical reports. 
+This Pipeline is a Nextflow-based workflow designed for the analysis of pan serotype Dengue virus (DENV1-4) genomic data. It processes raw sequencing data (Illumina or Nanopore) to identify Dengue virus serotypes, perform genotyping/lineage classification, generate consensus sequences, detect gene mutation, and generate a FHIR-compliant genomics bundle. 
 
 ## Key Features
-* **Multi-platform Support**: Handles both Illumina paired-end (short-read) and Nanopore long-read sequencing data.
-* **Comprehensive Typing**: MLST, capsule typing (K/O locus), wzi typing.
-* **Antimicrobial Resistance Detection**: Identifies resistance genes including ESBL, carbapenemases, and other acquired resistance.
-* **Virulence Factor Assessment**:Yersiniabactin, colibactin, aerobactin, salmochelin, and hypermucoidy markers.
+* **Multi-platform Support**: Processes raw read data from diverse platforms.
+* **Comprehensive Typing**: Serotyping (DENV-1 to DENV-4), and genotyping classification.
+**Host DNA Removal**: Removes human host contamination from clinical samples.
+* **Gene mutation**: Gene mutation detection by Nextstrain.
 * **Clinical Integration**: Merges genomic data with clinical metadata.
 * **Quality Control**: QC reporting with MultiQC.
 
 ## Key Outputs
 * Genome assembly
-* Typing and resistance characterization
+* Gene mutation list
+* Serotype and Genotype classification
 * FHIR-compliant genomic reports 
 * Quality control metrics
