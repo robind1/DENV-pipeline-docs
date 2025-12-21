@@ -2,68 +2,62 @@
 
 ## Main Workflow Controller
 **File:** `main.nf`
+The main workflow handles channel processing and parallel execution. It automatically detects input data types (Illumina or Nanopore), performs trimming and host removal, determines the serotype, and then routes data to the specific alignment and consensus generation workflows.
 
-The main workflow handles channel processing and parallel execution.
+## Pre-processing & Host Removal
+**Files:** `trimming.nf`, `host_removal.nf`
+1.  **Trimming**:
+    *   **Illumina**: `Trimmomatic` (Quality trimming, adapter removal).
+    *   **Nanopore**: `chopper` (Quality and length filtering).
+2.  **Host Removal**:
+    *   **Tool**: `hostile`.
+    *   **Process**: Aligns reads against a host reference (human) to remove non-viral reads using `bowtie2` (Illumina) or `minimap2` (Nanopore).
 
-*   **Input Detection**: Automatically detects input data types (Illumina or Nanopore) and routes them to the dedicated sub-workflows.
-*   **Parallel Processing**: Input streams are processed concurrently.
-*   **Channel Merging**: Assemblies from different streams are routed to unified channels for downstream processes:
-    *   Typing (MLST, Serotyping, Virulence, Resistance)
-    *   FHIR resource generation
-    *   Clinical data integration
-    *   MultiQC aggregate reporting
+## Serotyping
+**File:** `serotyping.nf`
+Determines the Dengue serotype to select the appropriate reference for alignment.
+1.  **Tool**: `BLASTn`.
+2.  **Process**: Maps a subset of reads against a database of Dengue reference sequences (DENV-1, 2, 3, 4, and Sylvatic strains).
 
 ## Nanopore (Long-Read) Workflow
 **File:** `nanopore.nf`
-
 For Oxford Nanopore Technologies (ONT) sequencing data.
-
-1.  **Quality Control**: 
-    *   Tool: `FastQC`
-    *   Metrics: Per-sample quality, GC content, per-base sequence quality.
-2.  **Assembly and Polishing**:
-    *   Tool: `Minimap2` and `Miniasm`
-    *   Process: Generates a de novo assembly from long reads.
-    *   *Note*: Workflow contains provisions for `Flye` assembly and `Medaka` polishing as alternative configurations.
+1.  **QC**: `FastQC`.
+2.  **Reference Selection**: Selects the specific reference genome based on the determined serotype.
+3.  **Alignment**:
+    *   **Tool**: `minimap2`.
+4.  **Consensus Generation**:
+    *   **Tools**: `bcftools`.
 
 ## Illumina (Short-Read) Workflow
 **File:** `illumina.nf`
+For Illumina paired-end sequencing data.
+1.  **QC**: `FastQC`.
+2.  **Reference Selection**: Selects the specific reference genome based on the determined serotype.
+3.  **Alignment**:
+    *   **Tool**: `bwa-mem2`.
+4.  **Consensus Generation**:
+    *   **Tools**: `bcftools`.
 
-For Illumina sequencing data.
+## Genotyping & Variant Analysis
+**File:** `genotyping.nf`
+Performs detailed characterization of the consensus sequence.
+1.  **Tool**: `Nextclade`.
+2.  **Process**:
+    *   Assigns **Genotype** and **Lineage** (Major/Minor) based on the Dengue dataset.
+    *   Identifies amino acid **Mutations**.
 
-1.  **Trimming & QC**:
-    *   Tool: `fastp`
-    *   Actions: Adapter removal, quality trimming.
-    *   Tool: `FastQC`
-    *   Actions: Per-sample quality, GC content, per-base sequence quality.
-2.  **De Novo Assembly**:
-    *   Tool: `Megahit` or `SPAdes`
-    *   Process: Generates a de novo assembly from short reads.
-3.  **Polishing**:
-    *   Tool: `Pilon`
-    *   Process: Maps reads back to the assembly using to correct base errors.
-
-## Typing Analysis
-**File:** `typing.nf`
-
-Performs genomic characterization of the assembled contigs.
-
-1.  **Genotyping Tool**: `Kleborate`
-    *   **MLST**: Determines Sequence Type (ST) and Clonal Complex.
-    *   **Serotyping**: Predicts Capsule (K) and O antigen loci using `Kaptive`.
-    *   **Virulence**: Detects key virulence factors (Yersiniabactin, Colibactin, Aerobactin, Salmochelin, RmpADC, RmpA2) and calculates virulence score.
-    *   **Resistance**: Identifies acquired resistance genes (ESBLs, Carbapenemases) and chromosomal mutations.
+## Reporting
+**File:** `report.nf`
+1.  **MultiQC**: Aggregates FastQC and trimming logs.
+2.  **Dengue Report**: A text report summarizing Serotype, Genotype, Lineage, Coverage, and Mutations.
 
 ## FHIR Converter
-
-Converts genomic typing data into HL7 FHIR R4 standard resources.
-
-1.  **Input Parsing**: Reads structured Typing and Lineage JSON files.
-2.  **Mapping**:
-    *   **Resistance Genes**: Mapped to LOINC codes and SNOMED CT for drug classes.
-    *   **Strain Typing**: MLST mapped to LOINC.
-    *   **Capsule Typing**: K-type mapped to LOINC.
-    *   **Virulence**: Virulence scores and factors mapped to observation components.
-3.  **Resource Creation**:
-    *   Generates `Observation` resources for resistance genes, susceptibility assessments, and strain characteristics.
-    *   Embeds interpretation of "High Risk Clones" and resistance profiles (e.g., ESBL/Carbapenemase producer status).
+**File:** `fhir.nf`
+Converts genomic analysis results into HL7 FHIR R4 standard resources.
+1.  **Input Parsing**: Reads consensus sequence stats, serotyping, and Nextclade results.
+2.  **Resource Creation**:
+    *   **Observation**: For Dengue Classification (Serotype, Genotype, Lineage).
+    *   **Observation**: For Viral Consensus Genome Sequence (Sequence string, length, coverage).
+    *   **Observation**: For each detected Genetic Variant.
+    *   **DiagnosticReport**: Report for overall Dengue analysis.
