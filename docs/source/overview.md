@@ -4,7 +4,7 @@
 ## Key Features
 * **Multi-platform Support**: Processes raw read data from diverse platforms.
 * **Comprehensive Typing**: Serotyping (DENV-1 to DENV-4), and genotyping classification.
-**Host DNA Removal**: Removes human host contamination from clinical samples.
+* **Host DNA Removal**: Removes human host contamination from clinical samples.
 * **Gene mutation**: Gene mutation detection by Nextstrain.
 * **Clinical Integration**: Merges genomic data with clinical metadata.
 * **Quality Control**: QC reporting with MultiQC.
@@ -15,3 +15,4 @@
 * Serotype and Genotype classification
 * FHIR-compliant genomic reports 
 * Quality control metrics
+
