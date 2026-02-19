@@ -14,5 +14,4 @@ Platform-agnostic DENV analysis pipeline
    components
    outputs
    FHIR
-   phylogenetic
    version
