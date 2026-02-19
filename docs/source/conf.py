@@ -6,8 +6,8 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'DENV Serotype Analysis Pipeline'
-copyright = '2025, SPHERES Lab Team'
+project = 'DENV Genomic Analysis Pipeline'
+copyright = '2026, SPHERES Lab Team'
 author = 'SPHERES Lab Team'
 release = '0.5.0'
 
