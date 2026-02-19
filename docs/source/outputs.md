@@ -17,12 +17,18 @@ The pipeline generates specific Observation resources for:
     *   **Gene ID**: Viral gene symbol (e.g., *E*, *NS1*, *NS5*).
     *   **Amino Acid Change**: The specific mutation in HGVS notation (e.g., `p.Val123Ile`).
 
-## Clinical Data Integration
-Merges the FHIR Genomics Observations with patient, facility, and practitioner information to create a complete genomic diagnostic report document.
+## Clinical Data Integration & Reporting
 
-### DiagnosticReport Resource
-*   **Conclusion**: A summary including the Serotype, Genotype, and Lineage.
-*   **Links**: References the Patient, Specimen, and all generated Observations.
+### Generated Resources
+*   **Patient**: uses `https://fhir.kemkes.go.id/r4/StructureDefinition/Patient` profile.
+*   **Specimen**: Blood sample details.
+*   **ServiceRequest**: Order for genetic assessment.
+*   **Organization**: Testing facility details.
+*   **Practitioner & PractitionerRole**: Medical staff details.
+*   **DiagnosticReport**: 
+    *   **Code**: LOINC `81247-9` (Master HL7 genetic variant reporting panel).
+    *   **Conclusion**: A summary including the Serotype, Genotype, and Lineage.
+    *   **Presentation**: Base64 encoded HTML report.
 
 ## Analysis Logic
 ### Serotyping
