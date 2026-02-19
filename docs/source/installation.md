@@ -1,10 +1,9 @@
 # Installation
 
 ## Prerequisites
-To run this pipeline, you need the following installed on your system:
+To run this pipeline, you need the following prerequisites:
 
 *   [Nextflow](https://www.nextflow.io/)
-*   [Docker](https://www.docker.com/)
 *   [Python](https://www.python.org/)
 *   [FastQC](https://github.com/s-andrews/FastQC)
 *   [MultiQC](https://github.com/MultiQC/MultiQC)
@@ -22,8 +21,8 @@ To run this pipeline, you need the following installed on your system:
 ## Setup
 1.  Clone the repository for local installation:
     ```bash
-    git clone https://github.com/robind1/DENVmutationpipeline.git
-    cd DENVmutationpipeline
+    git clone https://github.com/oucru-id/DENV-to-fhir-full.git
+    cd DENVgenomicpipeline
     ```
 2.  Install Nextflow:
     ```bash
