@@ -32,7 +32,7 @@ The pipeline generates specific Observation resources for:
 
 ## Analysis Logic
 ### Serotyping
-Determined by mapping reads against a database of reference sequences (DENV-1 through 4 and Sylvatic strains) using BLASTn.
+Determined by mapping reads against a database of reference sequences (DENV-1 through 4 and Sylvatic strains) using minimap2.
 *   **Logic**: The serotype with the highest number of high-identity mapped reads is selected.
 
 ### Genotyping & Lineage
