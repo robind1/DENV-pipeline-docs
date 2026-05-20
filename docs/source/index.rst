@@ -1,6 +1,6 @@
 .. DENV Mutation Pipeline documentation master file
 
-Platform-agnostic DENV analysis pipeline
+Platform-agnostic DENV analysis pipeline to FHIR (DENVtoFHIR)
 ==================================
 
 .. toctree::
