@@ -16,3 +16,40 @@
 * FHIR-compliant genomic reports 
 * Quality control metrics
 
+## Directory Structure
+
+```
+denv-to-fhir-full
+├── main.nf                             # Main workflow
+├── nextflow.config                     # Configuration and parameters
+├── workflows/
+│   ├── illumina.nf                     # Illumina sub-workflow
+│   ├── nanopore.nf                     # Nanopore sub-workflow
+│   ├── trimming.nf                     # Read trimming
+│   ├── host_removal.nf                 # Host read removal
+│   ├── serotyping.nf                   # Serotype classification
+│   ├── genotyping.nf                   # Genotype classification
+│   ├── fhir.nf                         # FHIR Bundle generation
+│   ├── validate_fhir.nf                # FHIR validation
+│   ├── merge_clinical_data.nf          # Clinical metadata merge
+│   ├── upload_fhir.nf                  # FHIR server upload
+│   ├── report.nf                       # QC and sample report generation
+│   └── utils.nf                        # Utility functions
+├── scripts/
+│   ├── annotated_to_fhir.py            # Consensus-to-FHIR converter
+│   ├── clinical_metadata_parser.py     # Patient/org/practitioner parser
+│   ├── serotype_classification.py      # Serotype classifier
+│   ├── generate_dengue_report.py       # Per-sample report generator
+│   ├── get_access_token.py             # FHIR access token retriever
+│   ├── upload_fhir.py                  # FHIR upload script
+│   ├── merge_clinical_fhir.py          # FHIR genomics + clinical data merger
+│   └── get_versions.py                 # Software version collector
+├── data/
+│   ├── NGS/                            # Input FASTQ files
+│   ├── references/                     # Reference genomes (DENV-1–4 & Sylvatic)
+│   ├── patient_clinical_metadata.csv   # Patient metadata
+│   ├── organization_metadata.csv       # Organization metadata
+│   └── practitioner_metadata.csv       # Practitioner metadata
+└── tools/
+    └── fhir-validator.jar              # HL7 FHIR validator
+```
