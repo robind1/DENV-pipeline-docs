@@ -6,10 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'DENV Genomic Analysis Pipeline'
-copyright = '2026, SPHERES Lab Team'
-author = 'SPHERES Lab Team'
-release = '0.5.0'
+project = 'DENV Genomic Analysis Pipeline to FHIR (DENVtoFHIR)'
+copyright = '2026, SPHERES OUCRU-ID'
+author = 'SPHERES OUCRU-ID'
+release = '1.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
