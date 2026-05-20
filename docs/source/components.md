@@ -16,8 +16,8 @@ The main workflow handles channel processing and parallel execution. It automati
 ## Serotyping
 **File:** `serotyping.nf`
 Determines the Dengue serotype to select the appropriate reference for alignment.
-1.  **Tool**: `BLASTn`.
-2.  **Process**: Maps a subset of reads against a database of Dengue reference sequences (DENV-1, 2, 3, 4, and Sylvatic strains).
+1.  **Tool**: `minimap2`.
+2.  **Process**: Maps a subset of reads against index of Dengue reference sequences (DENV-1, 2, 3, 4, and Sylvatic strains).
 
 ## Nanopore (Long-Read) Workflow
 **File:** `nanopore.nf`
@@ -61,3 +61,10 @@ Converts genomic analysis results into HL7 FHIR R4 standard resources.
     *   **Observation**: For Viral Consensus Genome Sequence (Sequence string, length, coverage).
     *   **Observation**: For each detected Genetic Variant.
     *   **DiagnosticReport**: Report for overall Dengue analysis.
+
+## Upload to FHIR Server
+**File:** `upload_fhir.nf`
+For uploading FHIR Genomics bundle with clinical metadata. Must grant bearer token first using scripts/get_access_token.py and fill the clinical metadata on each metadata csv (patient, organization, and practitioner). 
+
+## Workflow Parameter 
+`nextflow.config` defines all input files, directories, versioning, and specific tool parameters, relative to the base directory ($baseDir).
