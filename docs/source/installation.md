@@ -13,7 +13,6 @@ To run this pipeline, you need the following prerequisites:
 *   [minimap2](https://github.com/lh3/minimap2)
 *   [bcftools](https://github.com/samtools/bcftools)
 *   [samtools](https://github.com/samtools/samtools)
-*   [blastn](https://github.com/ncbi/sra-tools/tree/master)
 *   [hostile](https://github.com/bede/hostile)
 *   [Nextclade](https://github.com/nextstrain/nextclade)
 *   [FHIR validator](https://github.com/hapifhir/org.hl7.fhir.validator-wrapper)
@@ -32,3 +31,17 @@ To run this pipeline, you need the following prerequisites:
     ```bash
     nextflow -v
     ```
+4. Get Access Token (FHIR Upload)
+```bash
+python scripts/get_access_token.py
+```
+5. Basic Run
+```bash
+nextflow run main.nf
+```
+6. Run with FHIR Upload
+> Get the access token first before running with upload.
+```bash
+nextflow run main.nf \
+  --fhir_server_url "https://<BASE_URL>/fhir"
+```
