@@ -12,7 +12,7 @@ The pipeline generates specific Observation resources for:
     *   **Confidence**: Confidence level of the assignment.
 *   **Viral Consensus Genome**:
     *   **Sequence**: The full consensus nucleotide sequence.
-    *   **Metrics**: Sequence length, coverage, and completeness (N content).
+    *   **Metrics**: Sequence length, coverage, GC Content, and completeness (N content).
 *   **Genetic Variants**:
     *   **Gene ID**: Viral gene symbol (e.g., *E*, *NS1*, *NS5*).
     *   **Amino Acid Change**: The specific mutation in HGVS notation (e.g., `p.Val123Ile`).
@@ -40,22 +40,29 @@ Determined by mapping reads against a database of reference sequences (DENV-1 th
 *   **Mutation Calling**: Identifies amino acid substitutions relative to the serotype-specific reference.
 
 ## Output Directory Structure
-```text
+```
 results/
 ├── qc/
-│   ├── multiqc_report.html       
-├── host_removal/
-│   └── *.hostile_log.txt        
-├── serotyping/
-│   ├── *.serotype.json          
+│   └── multiqc_report.html             # Aggregated QC report
 ├── consensus/
-│   ├── *_consensus.fasta  
+│   └── *.consensus.fasta               # Per-sample consensus sequences
+├── serotyping/
+│   └── *.serotype.json                 # Per-sample serotype results
 ├── genotyping/
-│   ├── *.genotype_lineage.json   
+│   └── *.genotype_lineage.json         # Per-sample genotype/lineage results
 ├── fhir/
-│   └── *.fhir.json               
+│   └── *.fhir.json                     # FHIR genomics bundles
 ├── fhir_merged/
-│   └── *.merged.fhir.json       
+│   └── *.merged.fhir.json              # FHIR bundles with clinical data
+├── fhir_validated/
+│   └── *.validation.txt                # FHIR validation results
+├── fhir_upload/
+│   └── *.upload.json                   # FHIR upload results
 ├── reports/
-│ └── *_dengue_report.txt
+│   └── *.summary_report.txt            # Per-sample summary reports
+├── runningstat/
+│   ├── execution.html                  # Nextflow execution report
+│   ├── timeline.html                   # Timeline report
+│   └── dag.html                        # Workflow DAG
+└── software_versions.yml               # Software version manifest
 ```
