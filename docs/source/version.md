@@ -2,7 +2,7 @@
 
 ## Pipeline version
 
-**2.0.0** (`2.0.0-dev`)
+**2.0.0**
 
 ## Software
 
@@ -16,7 +16,7 @@
 | minimap2 | 2.26 |
 | bwa-mem2 | 2.2.1 |
 | iVar | 1.4.4 |
-| samtools | 1.19.2 (1.17 in minimap2 mulled image) |
+| samtools | 1.19.2 |
 | bcftools | 1.19 |
 | medaka | 2.1.0 |
 | mosdepth | 0.3.6 |
