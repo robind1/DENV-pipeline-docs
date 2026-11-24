@@ -11,10 +11,9 @@ classifications, and HL7 FHIR R4 resources conforming to the
 
 - **Multi-platform input**: Illumina paired-end reads, Oxford Nanopore reads, or pre-assembled
   consensus FASTAs, given together in one samplesheet.
-- **Pan-serotype panel & co-infection detection**: maps reads against a unified 6-genome reference
+- **Pan-serotype panel & co-infection detection**: maps reads against reference
   panel (`data/references/panel.tsv`: DENV-1..4 RefSeq plus sylvatic DENV-2 and DENV-4), flags
-  suspected mixed-serotype co-infections, and routes unmapped samples explicitly instead of
-  falling back to DENV-1.
+  suspected mixed-serotype co-infections.
 - **Amplicon-aware haploid consensus with low-depth masking**:
   - Optional amplicon primer trimming via `ivar trim` (`--primer_bed`), with the official
     [DengueSeq](https://doi.org/10.1186/s12864-024-10350-x) primer BED files bundled in
@@ -38,8 +37,7 @@ classifications, and HL7 FHIR R4 resources conforming to the
   `transaction` bundle in a third step.
 - **Two FHIR profiles**:
   - `generic` (default): plain HL7 Genomics Reporting IG 3.0.0.
-  - `satusehat`: adds what the Indonesian Ministry of Health SATUSEHAT platform expects (Kemkes
-    profiles, `genomics` tag, NIK identifiers, and Kemkes administrative/citizenship extensions).
+  - `satusehat`: adds Indonesian SATUSEHAT platform.
 
 ## What a run produces
 
