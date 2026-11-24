@@ -11,7 +11,7 @@ starts. Run `nextflow run . --help` to list them from the command line.
 | --- | --- | --- |
 | `input` | | Samplesheet CSV (`sample,platform,fastq_1,fastq_2,fasta`). |
 | `reads_dir` | | Legacy input directory (`<id>_{1,2}_illumina.fastq.gz`, `<id>_ont.fastq.gz`, `<id>.fasta`). |
-| `outdir` | `results` | Output directory. (`--results_dir` was removed in 2.0.0.) |
+| `outdir` | `results` | Output directory. (`--results_dir`) |
 
 ### Reference data
 
