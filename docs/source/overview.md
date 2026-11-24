@@ -1,55 +1,83 @@
 # Overview
-[This pipeline](https://github.com/oucru-id/DENV-to-fhir-full) is a Nextflow-based workflow designed for the analysis of pan serotype Dengue virus (DENV1-4) genomic data. It processes raw sequencing data (Illumina or Nanopore) to identify Dengue virus serotypes, perform genotyping/lineage classification, generate consensus sequences, detect gene mutation, and generate a FHIR-compliant genomics bundle. 
 
-## Key Features
-* **Multi-platform Support**: Processes raw read data from diverse platforms.
-* **Comprehensive Typing**: Serotyping (DENV-1 to DENV-4), and genotyping classification.
-* **Host DNA Removal**: Removes human host contamination from clinical samples.
-* **Gene mutation**: Gene mutation detection by Nextstrain.
-* **Clinical Integration**: Merges genomic data with clinical metadata.
-* **Quality Control**: QC reporting with MultiQC.
+[DENVtoFHIR](https://github.com/oucru-id/DENV-to-fhir-full) is a Nextflow pipeline for Dengue virus
+(DENV-1 to DENV-4) genomic analysis from Illumina paired-end amplicon/WGS reads, Oxford Nanopore
+reads, or pre-built consensus FASTA sequences. It produces serotype calls with mixed-serotype
+co-infection checks, depth-masked haploid consensus genomes, Nextclade genotype and lineage
+classifications, and HL7 FHIR R4 resources conforming to the
+[Genomics Reporting IG 3.0.0](https://hl7.org/fhir/uv/genomics-reporting/STU3/).
 
-## Key Outputs
-* Genome assembly
-* Gene mutation list
-* Serotype and Genotype classification
-* FHIR-compliant genomic reports 
-* Quality control metrics
+## Key features
 
-## Directory Structure
+- **Multi-platform input**: Illumina paired-end reads, Oxford Nanopore reads, or pre-assembled
+  consensus FASTAs, given together in one samplesheet.
+- **Pan-serotype panel & co-infection detection**: maps reads against a unified 6-genome reference
+  panel (`data/references/panel.tsv`: DENV-1..4 RefSeq plus sylvatic DENV-2 and DENV-4), flags
+  suspected mixed-serotype co-infections, and routes unmapped samples explicitly instead of
+  falling back to DENV-1.
+- **Amplicon-aware haploid consensus with low-depth masking**:
+  - Optional amplicon primer trimming via `ivar trim` (`--primer_bed`), with the official
+    [DengueSeq](https://doi.org/10.1186/s12864-024-10350-x) primer BED files bundled in
+    `data/primers/dengueseq/`.
+  - Haploid Illumina variant calling (`bcftools mpileup` + `bcftools call --ploidy 1 -mv` with DP,
+    QUAL, and allele-fraction filtering) and ONT variant calling (`medaka`), eliminating diploid
+    IUPAC ambiguity inflation.
+  - Per-base `mosdepth` coverage masks every position below `--consensus_min_depth` (default `10`)
+    with `N` (`bcftools consensus -m`), so reported sequence completeness matches real sequencing
+    breadth.
+- **QC-gated Nextclade genotyping**: fetches each needed serotype dataset
+  (`community/v-gen-lab/dengue/denv1..4`) once per run—or uses offline pre-fetched datasets via
+  `--nextclade_dir`—extracts amino acid substitutions, deletions, and insertions, and gates
+  genotype/lineage calls to **Indeterminate** when completeness falls below `--min_completeness`
+  (default `0.80`) or Nextclade QC is `bad`.
+- **QC reporting**: FastQC (Illumina) or NanoPlot (ONT), optional human host depletion (Hostile),
+  per-base `mosdepth` coverage summaries, MultiQC, and per-sample text reports.
+- **Genomic FHIR without patient data, by default.** The genomic report refers to the patient by
+  id only and embeds the masked consensus genome sequence (`--fhir_include_sequence true`).
+  Clinical resources are built in a separate, optional step and joined into a self-contained
+  `transaction` bundle in a third step.
+- **Two FHIR profiles**:
+  - `generic` (default): plain HL7 Genomics Reporting IG 3.0.0.
+  - `satusehat`: adds what the Indonesian Ministry of Health SATUSEHAT platform expects (Kemkes
+    profiles, `genomics` tag, NIK identifiers, and Kemkes administrative/citizenship extensions).
 
-```
-denv-to-fhir-full
-├── main.nf                             # Main workflow
-├── nextflow.config                     # Configuration and parameters
-├── workflows/
-│   ├── illumina.nf                     # Illumina sub-workflow
-│   ├── nanopore.nf                     # Nanopore sub-workflow
-│   ├── trimming.nf                     # Read trimming
-│   ├── host_removal.nf                 # Host read removal
-│   ├── serotyping.nf                   # Serotype classification
-│   ├── genotyping.nf                   # Genotype classification
-│   ├── fhir.nf                         # FHIR Bundle generation
-│   ├── validate_fhir.nf                # FHIR validation
-│   ├── merge_clinical_data.nf          # Clinical metadata merge
-│   ├── upload_fhir.nf                  # FHIR server upload
-│   ├── report.nf                       # QC and sample report generation
-│   └── utils.nf                        # Utility functions
-├── scripts/
-│   ├── annotated_to_fhir.py            # Consensus-to-FHIR converter
-│   ├── clinical_metadata_parser.py     # Patient/org/practitioner parser
-│   ├── serotype_classification.py      # Serotype classifier
-│   ├── generate_dengue_report.py       # Per-sample report generator
-│   ├── get_access_token.py             # FHIR access token retriever
-│   ├── upload_fhir.py                  # FHIR upload script
-│   ├── merge_clinical_fhir.py          # FHIR genomics + clinical data merger
-│   └── get_versions.py                 # Software version collector
+## What a run produces
+
+For each sample:
+- serotype call (`serotyping/<id>.serotype.json`) with read breakdown, sylvatic flag, and
+  co-infection flag
+- depth-masked consensus FASTA (`consensus/<id>.consensus.fasta`) and filtered VCF
+  (`variants/<id>.filtered.vcf.gz`)
+- per-base coverage summary (`qc/coverage/<id>.coverage.json`) and low-depth mask BED
+- Nextclade genotype, lineage, and amino acid mutation calls (`genotyping/<id>.genotype.json`)
+- human-readable summary report (`reports/<id>.summary_report.txt`)
+- a PHI-free FHIR genomic bundle (`fhir/genomic/<id>.genomic.fhir.json`) including the consensus
+  sequence
+- with `--patient_metadata`, a FHIR `transaction` bundle (`fhir/bundle/<id>.bundle.fhir.json`)
+  linking the genomic report to Patient, Specimen, Encounter, ServiceRequest, Organization, and
+  Practitioner
+
+## Repository layout
+
+```text
+DENV-to-fhir-full
+├── main.nf                  entry point and parameter validation
+├── workflows/denvfhir.nf    main workflow
+├── subworkflows/local/      prepare_reference, read_qc, serotyping, consensus_illumina,
+│                            consensus_nanopore, genotyping, fhir, utils_params
+├── modules/local/           one process per tool or step (with container, conda, and stub)
+├── bin/                     Python scripts (serotyping, coverage, Nextclade parser, genomic/
+│                            clinical/link FHIR builders, validation summary, upload, reports)
+├── conf/                    resources (base.config), output layout (modules.config), test profiles
+├── assets/                  samplesheet schema, FHIR CodeSystems, metadata templates
 ├── data/
-│   ├── NGS/                            # Input FASTQ files
-│   ├── references/                     # Reference genomes (DENV-1–4 & Sylvatic)
-│   ├── patient_clinical_metadata.csv   # Patient metadata
-│   ├── organization_metadata.csv       # Organization metadata
-│   └── practitioner_metadata.csv       # Practitioner metadata
-└── tools/
-    └── fhir-validator.jar              # HL7 FHIR validator
+│   ├── references/          6 DENV reference genomes and panel.tsv
+│   └── primers/dengueseq/   official DengueSeq primer BED files (DENV1..4 + sylvatics)
+├── tools/
+│   ├── nextclade/           fetch_datasets.sh for offline Nextclade staging
+│   ├── satusehat/           get_access_token.py helper (tokens stored in ~/.denvfhir)
+│   └── dev/                 check_no_phi.py PHI and credential guard
+├── tests/                   pytest suite and test profile data
+├── nextflow.config          parameters, manifest, and execution profiles
+└── nextflow_schema.json     parameter schema (nf-schema)
 ```

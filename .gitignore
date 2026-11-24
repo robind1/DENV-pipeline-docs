@@ -1,0 +1,7 @@
+
+# Sphinx build & local venv
+docs/_build/
+_build/
+.venv/
+__pycache__/
+*.pyc

@@ -1,68 +1,54 @@
-# Output Files
-The primary output is the **HL7 FHIR** bundle, which integrates genomic typing, lineage assignment, and mutation findings with clinical metadata.
+# Outputs
 
-## FHIR Genomic Observations
-Converts annotated genomic features into standardized FHIR **Observation** resources.
-### Observation Resources
-The pipeline generates specific Observation resources for:
-*   **Dengue Classification**: 
-    *   **Serotype**: The specific Dengue virus serotype (DENV-1, DENV-2, DENV-3, DENV-4).
-    *   **Genotype**: The specific genotype within the serotype (e.g., Genotype I, Genotype II).
-    *   **Lineage**: Major and Minor lineage assignments based on Nextclade analysis.
-    *   **Confidence**: Confidence level of the assignment.
-*   **Viral Consensus Genome**:
-    *   **Sequence**: The full consensus nucleotide sequence.
-    *   **Metrics**: Sequence length, coverage, GC Content, and completeness (N content).
-*   **Genetic Variants**:
-    *   **Gene ID**: Viral gene symbol (e.g., *E*, *NS1*, *NS5*).
-    *   **Amino Acid Change**: The specific mutation in HGVS notation (e.g., `p.Val123Ile`).
+All results are written under `--outdir` (default `results/`):
 
-## Clinical Data Integration & Reporting
-
-### Generated Resources
-*   **Patient**: uses `https://fhir.kemkes.go.id/r4/StructureDefinition/Patient` profile.
-*   **Specimen**: Blood sample details.
-*   **ServiceRequest**: Order for genetic assessment.
-*   **Organization**: Testing facility details.
-*   **Practitioner & PractitionerRole**: Medical staff details.
-*   **DiagnosticReport**: 
-    *   **Code**: LOINC `81247-9` (Master HL7 genetic variant reporting panel).
-    *   **Conclusion**: A summary including the Serotype, Genotype, and Lineage.
-    *   **Presentation**: Base64 encoded HTML report.
-
-## Analysis Logic
-### Serotyping
-Determined by mapping reads against a database of reference sequences (DENV-1 through 4 and Sylvatic strains) using minimap2.
-*   **Logic**: The serotype with the highest number of high-identity mapped reads is selected.
-
-### Genotyping & Lineage
-*   **Clade Assignment**: Assigns specific clades (e.g., `1I.A`, `3III_B.3.2`) which are parsed into Genotypes and Lineages.
-*   **Mutation Calling**: Identifies amino acid substitutions relative to the serotype-specific reference.
-
-## Output Directory Structure
-```
+```text
 results/
+├── pipeline_info/
+│   ├── execution_report_<timestamp>.html
+│   ├── execution_timeline_<timestamp>.html
+│   ├── execution_trace_<timestamp>.txt
+│   ├── pipeline_dag_<timestamp>.html
+│   └── software_versions.yml
 ├── qc/
-│   └── multiqc_report.html             # Aggregated QC report
-├── consensus/
-│   └── *.consensus.fasta               # Per-sample consensus sequences
+│   ├── fastqc/               <id>*_fastqc.{zip,html}                  (Illumina)
+│   ├── nanoplot/             <id>_NanoStats.txt, <id>_NanoPlot-report.html (ONT)
+│   ├── host_removal/         <id>.hostile.log                         (when enabled)
+│   ├── coverage/             <id>.coverage.json, <id>.mask.bed,
+│   │                         <id>.per-base.bed.gz, <id>.mosdepth.summary.txt
+│   └── multiqc/              multiqc_report.html, multiqc_data/
 ├── serotyping/
-│   └── *.serotype.json                 # Per-sample serotype results
+│   └── <id>.serotype.json
+├── variants/
+│   └── <id>.filtered.vcf.gz(.tbi)
+├── consensus/
+│   └── <id>.consensus.fasta
 ├── genotyping/
-│   └── *.genotype_lineage.json         # Per-sample genotype/lineage results
-├── fhir/
-│   └── *.fhir.json                     # FHIR genomics bundles
-├── fhir_merged/
-│   └── *.merged.fhir.json              # FHIR bundles with clinical data
-├── fhir_validated/
-│   └── *.validation.txt                # FHIR validation results
-├── fhir_upload/
-│   └── *.upload.json                   # FHIR upload results
+│   ├── <id>.nextclade.csv
+│   ├── <id>.nextclade.json
+│   └── <id>.genotype.json
 ├── reports/
-│   └── *.summary_report.txt            # Per-sample summary reports
-├── runningstat/
-│   ├── execution.html                  # Nextflow execution report
-│   ├── timeline.html                   # Timeline report
-│   └── dag.html                        # Workflow DAG
-└── software_versions.yml               # Software version manifest
+│   └── <id>.summary_report.txt
+└── fhir/
+    ├── genomic/              <id>.genomic.fhir.json                   (PHI-free)
+    ├── clinical/             shared.clinical.json, <fid>.clinical.json,
+    │                         external_refs.json, clinical_summary.tsv (personal data)
+    ├── bundle/               <fid>.bundle.fhir.json, link_summary.tsv (personal data)
+    ├── validation/           validation_summary.tsv, validation_<n>.json (when enabled)
+    └── upload/               <fid>.bundle.upload.json                 (when uploaded)
 ```
+
+## Key output files
+
+| File | Description |
+| --- | --- |
+| `serotyping/<id>.serotype.json` | Serotype call, confidence, selected reference accession/FASTA, sylvatic flag, per-serotype read counts/fractions/identity, and `coinfection_suspected` flag. |
+| `qc/coverage/<id>.coverage.json` | Coverage assessment status (`assessed`, `submitted_consensus`, or `unmapped`), reference accession, mean/median/min/max depth, breadth at `>=1x`, `>=min_depth`, `>=30x`, and masked base count. |
+| `qc/coverage/<id>.mask.bed` | 0-based BED intervals where depth `< consensus_min_depth` that were masked with `N` in the consensus. |
+| `consensus/<id>.consensus.fasta` | Depth-masked haploid consensus genome (`><id>`), with 0 IUPAC ambiguity bases for Illumina/ONT runs. |
+| `variants/<id>.filtered.vcf.gz` | Normalised, depth/quality/AF-filtered haploid VCF applied to build the consensus. |
+| `genotyping/<id>.genotype.json` | Structured Nextclade genotype, major/minor lineage, clade code, QC status (`PASS`/`FAIL`), `qc_reasons`, `raw_clade`, masked consensus statistics, and structured lists of AA substitutions, deletions, and insertions. |
+| `reports/<id>.summary_report.txt` | Human-readable summary report with sequence/coverage QC, serotype & co-infection check, Nextclade genotype/QC status, and AA changes grouped by viral protein (`C`, `prM`, `E`, `NS1`–`NS5`). |
+| `fhir/genomic/<id>.genomic.fhir.json` | PHI-free FHIR R4 `collection` Bundle containing `DiagnosticReport`, `Observation`s (classification, region-studied QC, embedded consensus sequence, and AA variants), `Device`, and `Provenance`. |
+| `fhir/bundle/<fid>.bundle.fhir.json` | Self-contained FHIR R4 `transaction` Bundle linking genomic and clinical resources (only generated when `--patient_metadata` is supplied). |
+| `pipeline_info/software_versions.yml` | Exact tool versions, workflow version, FHIR profile, and reference panel used for the run. |
