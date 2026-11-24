@@ -3,8 +3,7 @@
 ## Requirements
 
 You need [Nextflow](https://www.nextflow.io/) >= 25.04 and **one** of the execution profiles below.
-If using Nextflow 26.04, use **26.04.2 or later** (26.04.0 and 26.04.1 have a `-resume` caching
-bug when parameters change).
+If using Nextflow 26.04, use **26.04.2 or later**.
 
 | Profile | Provides the tools via |
 | --- | --- |
@@ -40,14 +39,14 @@ If your system only provides Debian/Ubuntu's `trimmomatic.jar`, pass
 ## Get the pipeline
 
 ```bash
-git clone -b 2.0.0-dev https://github.com/oucru-id/DENV-to-fhir-full.git
+git clone -b 2.0.0 https://github.com/oucru-id/DENV-to-fhir-full.git
 cd DENV-to-fhir-full
 ```
 
 Or run directly from GitHub with Nextflow:
 
 ```bash
-nextflow run oucru-id/DENV-to-fhir-full -r 2.0.0-dev -profile test_stub -stub-run
+nextflow run oucru-id/DENV-to-fhir-full -r 2.0.0 -profile test_stub -stub-run
 ```
 
 ## Verify the installation
