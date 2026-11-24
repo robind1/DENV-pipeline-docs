@@ -19,15 +19,3 @@
 - **Primer trimming requires matching scheme coordinates**: pass `--primer_bed data/primers/dengueseq`
   only for libraries amplified with DengueSeq primers. For other amplicon schemes (e.g. Stubbs et
   al. 2020 or custom panels), supply the matching primer BED file(s) or omit `--primer_bed`.
-- **Submitted consensus FASTA (`platform = fasta`)**: read-level depth and breadth cannot be
-  measured from a FASTA alone, so `coverage.json` is recorded as `assessed: false`
-  (`status: "submitted_consensus"`).
-- **ONT Medaka model selection**: `--medaka_model` must match the flow cell and basecaller used
-  (e.g. `r941_min_hac_variant_g507` for R9.4.1 HAC vs `r1041_e82_400bps_sup_variant_v5.0.0` for
-  R10.4.1 Kit 14 SUP). Using a mismatched model degrades indel accuracy.
-- **FHIR validation default**: `--skip_fhir_validation` currently defaults to `true` in `2.0.0-dev`
-  while Genomics Reporting IG 3.0.0 profile validation is finalised. Enable it with
-  `--skip_fhir_validation false` when validating bundles before production upload.
-- **Network access for runtime databases**: unless `--nextclade_dir` (and `--hostile_index` when
-  host removal is enabled) are pre-staged locally, the first run requires internet access to fetch
-  Nextclade datasets and/or the Hostile index.
