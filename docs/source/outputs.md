@@ -1,6 +1,6 @@
 # Outputs
 
-All results are written under `--outdir` (default `results/`):
+All results are written under `--outdir`:
 
 ```text
 results/
